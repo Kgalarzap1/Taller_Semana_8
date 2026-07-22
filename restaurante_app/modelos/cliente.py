@@ -1,18 +1,11 @@
-# cliente.py
-# Clase que representa a un cliente del restaurante.
-# Se implementa utilizando el decorador @dataclass, el cual genera
-# automáticamente el constructor y otros métodos especiales.
-
-from dataclasses import dataclass
-
-
-@dataclass
 class Cliente:
-    """Representa a un cliente registrado en el restaurante."""
-    nombre: str
-    correo: str
-    id_cliente: str
+    """Clase que representa a un cliente registrado en el restaurante."""
 
-    def mostrar_informacion(self) -> str:
-        """Devuelve la información del cliente en un formato legible."""
-        return f"ID: {self.id_cliente} | Nombre: {self.nombre} | Correo: {self.correo}"
+    def __init__(self, identificacion: str, nombre: str, correo: str) -> None:
+        self.identificacion: str = identificacion
+        self.nombre: str = nombre
+        self.correo: str = correo
+
+    def mostrar_informacion(self) -> None:
+        print(f"  [Cliente]  ID: {self.identificacion} | Nombre: {self.nombre} "
+              f"| Correo: {self.correo}")
