@@ -1,79 +1,105 @@
-from modelos.producto import Producto
-from modelos.bebida import Bebida
-from modelos.cliente import Cliente
-from servicios.restaurante import Restaurante
+import tkinter as tk
+from pathlib import Path
+
+from servicios.archivo_servicio import ArchivoServicio
+from servicios.restaurante_servicio import RestauranteServicio
+from ui.login_view import LoginView
+from ui.main_view import MainView
 
 
-def mostrar_menu() -> None:
-    print("\n========================================")
-    print("        SISTEMA DE RESTAURANTE")
-    print("========================================")
-    print(" 1. Registrar producto")
-    print(" 2. Registrar bebida")
-    print(" 3. Registrar cliente")
-    print("----------------------------------------")
-    print(" 4. Listar productos")
-    print(" 5. Listar clientes")
-    print("----------------------------------------")
-    print(" 6. Salir")
-    print("========================================")
+class AplicacionRestaurante:
 
+    def __init__(self) -> None:
 
-def registrar_producto(servicio: Restaurante) -> None:
-    print("\n--- Registrar Producto ---")
-    codigo: str = input("  Código: ").strip()
-    nombre: str = input("  Nombre: ").strip()
-    categoria: str = input("  Categoría: ").strip()
-    precio: float = float(input("  Precio: ").strip())
-    producto = Producto(codigo, nombre, categoria, precio)
-    servicio.registrar_producto(producto)
+        # Única ventana principal
+        self.root = tk.Tk()
 
+        self.root.title(
+            "Restaurante App - Tkinter"
+        )
 
-def registrar_bebida(servicio: Restaurante) -> None:
-    print("\n--- Registrar Bebida ---")
-    codigo: str = input("  Código: ").strip()
-    nombre: str = input("  Nombre: ").strip()
-    categoria: str = input("  Categoría: ").strip()
-    precio: float = float(input("  Precio: ").strip())
-    tamano: str = input("  Tamaño (ej: 500ml, 1L): ").strip()
-    tipo_envase: str = input("  Tipo de envase (ej: botella, lata, vaso): ").strip()
-    bebida = Bebida(codigo, nombre, categoria, precio, tamano, tipo_envase)
-    servicio.registrar_producto(bebida)
+        self.root.geometry(
+            "750x520"
+        )
 
+        self.root.minsize(
+            650,
+            450
+        )
 
-def registrar_cliente(servicio: Restaurante) -> None:
-    print("\n--- Registrar Cliente ---")
-    identificacion: str = input("  Identificación: ").strip()
-    nombre: str = input("  Nombre: ").strip()
-    correo: str = input("  Correo: ").strip()
-    cliente = Cliente(identificacion, nombre, correo)
-    servicio.registrar_cliente(cliente)
+        # Ruta principal del proyecto
+        ruta_base = (
+            Path(__file__).resolve().parent
+        )
 
+        # Preparar servicios
+        archivo_servicio = ArchivoServicio(
+            ruta_base / "datos"
+        )
 
-def main() -> None:
-    servicio = Restaurante()
-    ejecutando: bool = True
+        self.restaurante_servicio = (
+            RestauranteServicio(
+                archivo_servicio
+            )
+        )
 
-    while ejecutando:
-        mostrar_menu()
-        opcion: str = input("  Seleccione una opción: ").strip()
+        self.vista_actual = None
 
-        if opcion == "1":
-            registrar_producto(servicio)
-        elif opcion == "2":
-            registrar_bebida(servicio)
-        elif opcion == "3":
-            registrar_cliente(servicio)
-        elif opcion == "4":
-            servicio.listar_productos()
-        elif opcion == "5":
-            servicio.listar_clientes()
-        elif opcion == "6":
-            print("\n  Hasta luego.\n")
-            ejecutando = False
-        else:
-            print("  Opción no válida. Intente nuevamente.")
+        # Primera pantalla
+        self.mostrar_login()
+
+    def cambiar_vista(
+        self,
+        nueva_vista
+    ) -> None:
+
+        if self.vista_actual is not None:
+
+            self.vista_actual.destroy()
+
+        self.vista_actual = nueva_vista
+
+        self.vista_actual.pack(
+            fill="both",
+            expand=True
+        )
+
+    def mostrar_login(self) -> None:
+
+        vista = LoginView(
+            self.root,
+            self.restaurante_servicio,
+            self.mostrar_main
+        )
+
+        self.cambiar_vista(
+            vista
+        )
+
+    def mostrar_main(
+        self,
+        usuario_actual
+    ) -> None:
+
+        vista = MainView(
+            self.root,
+            self.restaurante_servicio,
+            usuario_actual,
+            self.mostrar_login
+        )
+
+        self.cambiar_vista(
+            vista
+        )
+
+    def ejecutar(self) -> None:
+
+        # Único ciclo principal
+        self.root.mainloop()
 
 
 if __name__ == "__main__":
-    main()
+
+    aplicacion = AplicacionRestaurante()
+
+    aplicacion.ejecutar()
